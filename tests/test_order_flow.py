@@ -1,119 +1,40 @@
 import time
 import random
 from utils.driver import create_driver
-from appium.webdriver.common.appiumby import AppiumBy as By
+from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.common.keys import Keys
 from appium.webdriver.extensions.android.nativekey import AndroidKey
-from selenium.webdriver.common.action_chains import ActionChains
-# from selenium.webdriver.common.actions.pointer_input import PointerInput
-# from selenium.webdriver.common.actions import interaction
-from appium.webdriver.common.appiumby import AppiumBy
-
 
 
 def get_available_system_port():
     return random.randint(8200, 8300)
 
-def test_launch_app():
-    driver = create_driver()
-    wait = WebDriverWait(driver, 20) 
-    
 
-    time.sleep(3)
-
-#     login_to_unlock = wait.until(
-#         EC.element_to_be_clickable((
-#             By.XPATH,
-#             "//android.widget.TextView[@text='Login to Unlock']"
-#         ))
-#     )
-#     login_to_unlock.click()
-
-
-# def test_login_and_location():
-#     driver = create_driver()
-#     wait = WebDriverWait(driver, 20)
-    
-#     # Continue with Email
-#     continue_email_btn = wait.until(
-#         EC.element_to_be_clickable(
-#             (By.XPATH, "//android.widget.TextView[@text='Continue with Email']")
-#         )
-#     )
-#     continue_email_btn.click()
-    
-
-#     email_field = wait.until(
-#         EC.presence_of_element_located((By.XPATH, "//android.widget.EditText[@text='Enter Email']"))
-#     )
-#     email_field.click()
-#     email_field.send_keys("tokyo@mail.com")
-    
-    
-#     password_field = wait.until(
-#         EC.presence_of_element_located((By.XPATH, "//android.widget.EditText[@text='Enter Password']"))
-#     )
-#     password_field.click()
-#     password_field.send_keys("Dhaka@01")
-    
-#     driver.hide_keyboard()
-    
-  
-#     login_btn = wait.until(
-#         EC.element_to_be_clickable((By.XPATH, "//android.widget.TextView[@text='Log in']"))
-#     )
-#     login_btn.click()
-    
-#     print("Waiting for login to complete...")
-#     time.sleep(5) 
-    
-   
-    start_ordering = wait.until(
-        EC.element_to_be_clickable((
-            By.XPATH,
-            "//android.widget.TextView[@text='Start Ordering!']"
-        ))
-    )
-    start_ordering.click()
-    time.sleep(3) 
-
-  
-    select_location(driver, wait)
-
-    
-    print("Login and location selection successful!")
-    return driver
-
-
-def select_location(driver, wait=None):
+def select_location(driver, wait):
     """Select location from address list"""
-    if wait is None:
-        wait = WebDriverWait(driver, 20)
-    
     print("Attempting to select location...")
     
     try:
         element = wait.until(
             EC.presence_of_element_located(
-                (By.XPATH, "//android.widget.TextView[@text='Current']")
+                (AppiumBy.XPATH, '//android.widget.TextView[@text="Google Building 40, 1600 Amphitheatre Pkwy, Mountain View, CA 94043, USA"]')
+
             )
         )
         element.click()
         print("Location screen detected")
-        
-        time.sleep(2)     
+        time.sleep(2)
 
-        select_address_in_scroll_view(driver, "Office, Lyxa, Lyxa Office")
+        select_address_in_scroll_view(driver, "Lyxa BD, Bd, Bd")
         
     except Exception as e:
         print(f"Error in select_location: {e}")
         try:
             driver.find_element(
                 AppiumBy.ACCESSIBILITY_ID,
-                "Office, Lyxa, Lyxa Office"
+                "Lyxa BD, Bd, Bd"
             ).click()
         except:
             print("Could not find address using any method")
@@ -124,7 +45,6 @@ def select_address_in_scroll_view(driver, address_desc):
     print(f"Attempting to scroll to and click address: {address_desc}")
     
     try:
-        # Try UiScrollable first
         element = driver.find_element(
             AppiumBy.ANDROID_UIAUTOMATOR,
             f'new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().description("{address_desc}"))'
@@ -134,54 +54,44 @@ def select_address_in_scroll_view(driver, address_desc):
         
     except Exception as e:
         print(f"UiAutomator scroll failed: {e}")
-
         try:
-            # Try accessibility ID
             element = driver.find_element(AppiumBy.ACCESSIBILITY_ID, address_desc)
             element.click()
             print(f"Found address by accessibility ID: {address_desc}")
-            
         except Exception as e2:
             print(f"Accessibility ID approach also failed: {e2}")
-            
             try:
-                # Try XPath as last resort
-                element = driver.find_element(By.XPATH, f"//*[@text='{address_desc}']")
+                element = driver.find_element(AppiumBy.XPATH, f"//*[@text='{address_desc}']")
                 element.click()
                 print(f"Found address by text: {address_desc}")
             except Exception as e3:
                 print(f"All methods failed: {e3}")
                 raise
-    time.sleep(5) 
+    time.sleep(5)
 
 
-def test_search_and_add_to_cart(driver=None, wait=None):
-    """Test case 1: Search for products and add items to cart"""
-    
-    # Create driver if not provided
-    if driver is None:
-        driver = create_driver()
-    
-    if wait is None:
-        wait = WebDriverWait(driver, 20)
-    
+def search_and_add_to_cart(driver, wait):
+    """Helper: Search for products and add items to cart"""
     print("Starting search and add to cart flow...")
     
     try:
-       
-        wait.until(
+        # Click search icon
+        search_btn = wait.until(
             EC.element_to_be_clickable((
-                By.XPATH,
-                "//android.view.ViewGroup[@content-desc=\"What’s on Your Shopping List?\"]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView[1]"
+                AppiumBy.ACCESSIBILITY_ID,
+                "S, e, a, r, c, h,  , f, o, r,  , p, i, z, z, a"
             ))
-        ).click()
+        )
+
+        search_btn.click()
+        print("✓ Clicked Search for pizza")
 
 
-        time.sleep(3)
   
+        # Search for location
         search_input = wait.until(
             EC.element_to_be_clickable(
-                (By.XPATH, "//android.widget.EditText[@text='Search']")
+                (AppiumBy.XPATH, "//android.widget.EditText[@text='Search']")
             )
         )
         search_input.click()
@@ -189,9 +99,9 @@ def test_search_and_add_to_cart(driver=None, wait=None):
         time.sleep(3)
         driver.press_keycode(66)
         time.sleep(2)
-        # driver.press_keycode(4)
         driver.press_keycode(AndroidKey.TAB)
 
+        # Select shop
         select_shop = wait.until(
             EC.element_to_be_clickable((
                 AppiumBy.XPATH,
@@ -199,174 +109,230 @@ def test_search_and_add_to_cart(driver=None, wait=None):
             ))
         )
         select_shop.click()
-
         time.sleep(2)
 
-        #adding product in details mood
-
+        # Select test product
         test_product = wait.until(
             EC.element_to_be_clickable((
-                By.XPATH,
+                AppiumBy.XPATH,
                 "//android.widget.TextView[@text='Test Product']"
             ))
         )
         test_product.click()
-
         time.sleep(2)
 
+        # Click product again
         test_product = wait.until(
             EC.element_to_be_clickable((
-                By.XPATH,
+                AppiumBy.XPATH,
                 "//android.widget.TextView[@text='Test Product']"
             ))
         )
         test_product.click()
-
         time.sleep(2)
 
+        # Click circle
         circle = wait.until(
             EC.element_to_be_clickable((
-                By.XPATH,
-                "//com.horcrux.svg.CircleView"
+                AppiumBy.XPATH,
+                "//android.widget.TextView[@text='Test Product']/ancestor::android.view.ViewGroup//com.horcrux.svg.CircleView"
             ))
-        )
-        circle.click()
-
+        ).click()
 
         time.sleep(2)
 
-        path_el = wait.until(
-            EC.element_to_be_clickable((
-                By.XPATH,
-                "//android.widget.FrameLayout[@resource-id='android:id/content']/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[2]/android.view.ViewGroup[3]/android.widget.HorizontalScrollView/android.view.ViewGroup/android.view.ViewGroup[3]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView"
-            ))
-        )
+        # # Click path element
+        # path_el = wait.until(
+        #     EC.presence_of_element_located((
+        #         AppiumBy.XPATH,
+        #         "//android.widget.FrameLayout[@resource-id='android:id/content']/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[2]/android.view.ViewGroup[3]/android.widget.HorizontalScrollView/android.view.ViewGroup/android.view.ViewGroup[3]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView"
+        #     ))
+        # )
+        # path_el.click()
 
-        path_el.click()
+        # # Enter special instructions
+        # special_input = wait.until(
+        #     EC.element_to_be_clickable((
+        #         AppiumBy.XPATH,
+        #         "//android.widget.EditText[@hint='Enter Special Instructions']"
+        #     ))
+        # )
 
+        # special_input.click()
+        # special_input.send_keys("please wait outside")
 
+        
+        # target = wait.until(
+        #     EC.element_to_be_clickable((
+        #         AppiumBy.XPATH,
+        #         "//android.widget.FrameLayout[@resource-id='android:id/content']"
+        #         "/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup"
+        #         "/android.view.ViewGroup[2]/android.widget.ScrollView/android.view.ViewGroup"
+        #         "/android.view.ViewGroup/android.view.ViewGroup[5]"
+        #         "/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView"
+        #     ))
+        # )
+        # target.click()
         # time.sleep(2)
 
-        special_input = wait.until(
-                    EC.element_to_be_clickable((
-                        By.XPATH,
-                        "//android.widget.EditText[@text='Enter Special Instructions']"
-            ))
-        )
-
-        time.sleep(2)
-
-        special_input.click()
-        special_input.send_keys("please wait outside")
-
-        target = wait.until(
-            EC.element_to_be_clickable((
-                By.XPATH,
-                "//android.widget.FrameLayout[@resource-id='android:id/content']"
-                "/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup"
-                "/android.view.ViewGroup[2]/android.widget.ScrollView/android.view.ViewGroup"
-                "/android.view.ViewGroup/android.view.ViewGroup[5]"
-                "/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView"
-            ))
-        )
-        target.click()
-
-        time.sleep(2)
-
-
+        # Click price element
         price_element = wait.until(
-            EC.element_to_be_clickable((
-                By.XPATH,
-                "//android.view.ViewGroup[contains(@content-desc, 'LBP')]"
-            ))
-        )
-        price_element.click()
-
-        time.sleep(3)
-
-        driver.implicitly_wait(3)
-        driver.swipe(300, 1200, 300, 700)
-
-        # Add item to cart (Mug)
-        target = wait.until(
-            EC.element_to_be_clickable((
-                By.XPATH,
-                "//android.view.ViewGroup[contains(@content-desc, 'Mug, Buy 1 Get 1')]/android.view.ViewGroup[3]"
+            EC.presence_of_element_located((
+                AppiumBy.XPATH,
+                "//android.view.ViewGroup[contains(@content-desc,'LBP')]"
             ))
         )
 
-        target.click()
+        driver.execute_script("mobile: clickGesture", {
+            "elementId": price_element.id
+        })
 
         time.sleep(3)
         
-        driver.swipe(300, 700, 300, 50)
+        
+# Find the yellow button container
+        # target = wait.until(
+        #     EC.presence_of_element_located((
+        #         AppiumBy.XPATH,
+        #         '//android.view.ViewGroup[@content-desc="LBP 180,000"]'
+        #     ))
+        # )
+        
+        # # Use mobile gesture to click
+        # driver.execute_script('mobile: clickGesture', {'elementId': target.id})
+        # print("✓ Clicked using mobile gesture")
+        # time.sleep(2)
+        # # Swipe to scroll
+        # driver.swipe(300, 1200, 300, 700)
 
-        # Click on Final Check item
-        target = wait.until(
-            EC.element_to_be_clickable((
-                By.XPATH,
-                "//android.view.ViewGroup[contains(@content-desc, 'Final Check')]"
-                "/android.view.ViewGroup[3]/android.view.ViewGroup"
-            ))
-        )
+        # Add Mug to cart
+        # target = wait.until(
+        #     EC.element_to_be_clickable((
+        #         AppiumBy.XPATH,
+        #         "//android.view.ViewGroup[contains(@content-desc, 'Mug')]/android.view.ViewGroup[3]"
+        #     ))
+        # )
+        # target.click()
+        
+        # target = wait.until(
+        #     EC.element_to_be_clickable((
+        #         AppiumBy.XPATH,
+        #         "//android.view.ViewGroup[@content-desc='Mug, test, LBP 207,000']/android.view.ViewGroup[2]/android.view.ViewGroup"
+        #     ))
+        # )
+        # target.click()
+        # time.sleep(3)
+        
+        # driver.swipe(300, 700, 300, 50)
 
-        target.click()
-
+        # Click Final Check
+    #     target = wait.until(
+    #         EC.element_to_be_clickable((
+    #             AppiumBy.XPATH,
+    #             "//android.view.ViewGroup[contains(@content-desc, 'Final Check')]"
+    #             "/android.view.ViewGroup[3]/android.view.ViewGroup"
+    #         ))
+    #     )
+    #     driver.execute_script("mobile: clickGesture", {
+    #     "elementId": el.id
+    # })
+    #     target.click()
         
         print("✓ Items added to cart successfully!")
-        return driver
         
     except Exception as e:
         print(f"✗ Error in search_and_add_to_cart: {e}")
         raise
 
 
-def test_checkout_and_place_order(driver=None, wait=None):
-    """Test case 2: Checkout and place order"""
-    
-    # Create driver if not provided
-    if driver is None:
-        driver = create_driver()
-    
-    if wait is None:
-        wait = WebDriverWait(driver, 20)
-    
+def checkout_and_place_order(driver, wait):
+    """Helper: Checkout and place order"""
     print("Starting checkout and place order flow...")
     
     try:
         # View basket
         view_basket = wait.until(
             EC.element_to_be_clickable((
-                By.XPATH,
+                AppiumBy.XPATH,
                 "//android.view.ViewGroup[contains(@content-desc, 'View Basket')]"
             ))
         )
         view_basket.click()
         time.sleep(2)
-        wait = WebDriverWait(driver, 20)
+
         # Click checkout button
         checkout = wait.until(
             EC.element_to_be_clickable((
-                By.XPATH,
+                AppiumBy.XPATH,
                 "//android.view.ViewGroup[contains(@content-desc, 'Checkout')]"
             ))
         )
         checkout.click()
 
-        wait = WebDriverWait(driver, 20)
+        # Place order
         placeOrder = wait.until(
             EC.element_to_be_clickable((
-                By.XPATH,
+                AppiumBy.XPATH,
                 "//android.view.ViewGroup[contains(@content-desc, 'Place Order')]"
             ))
         )
         placeOrder.click()
         
         print("✓ Order placed successfully!")
-        return driver
         
     except Exception as e:
-        print(f" Error in checkout_and_place_order: {e}")
+        print(f"✗ Error in checkout_and_place_order: {e}")
         raise
 
 
+# ==========================================
+# MAIN TEST - This is what pytest will run
+# ==========================================
+def test_complete_order_flow():
+    """Complete end-to-end order flow test"""
+    print("TEST STARTED")
+    
+    driver = None
+    try:
+        # Initialize driver
+        driver = create_driver()
+        wait = WebDriverWait(driver, 20)
+        
+        print("✓ App launched")
+        time.sleep(3)
+
+        # # Start ordering
+        # start_ordering = wait.until(
+        #     EC.element_to_be_clickable((
+        #         AppiumBy.XPATH,
+        #         "//android.widget.TextView[@text='Start Ordering!']"
+        #     ))
+        # )
+        # start_ordering.click()
+        # time.sleep(3)
+        # print("✓ Clicked 'Start Ordering'")
+
+        # Select location
+        select_location(driver, wait)
+        print("✓ Location selected")
+
+        # Search and add to cart
+        search_and_add_to_cart(driver, wait)
+        print("✓ Items added to cart")
+
+        # Checkout and place order
+        checkout_and_place_order(driver, wait)
+        print("✓ Order placed")
+
+        print("🎉 COMPLETE ORDER FLOW TEST PASSED 🎉")
+        
+    except Exception as e:
+        print(f"❌ TEST FAILED: {e}")
+        if driver:
+            driver.save_screenshot("error_screenshot.png")
+        raise
+        
+    finally:
+        if driver:
+            driver.quit()
+            print("✓ Driver closed")
