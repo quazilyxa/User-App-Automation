@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest / Test artifacts
+.pytest_cache/
+test-results/
+reports/
+*.html
+*.log
+
+# Screenshots & Page Source Dumps
+*.png
+*.jpg
+*.jpeg
+*.xml
+
+# Environment variables
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# OS generated
+.DS_Store
+Thumbs.db
