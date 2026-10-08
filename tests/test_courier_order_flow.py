@@ -55,20 +55,6 @@ def test_courier_order_complete_flow():
         print(" Courier type selected")
         time.sleep(3)
 
-        # target = wait.until(
-        # EC.element_to_be_clickable((
-        #     By.XPATH,
-        #     "//android.widget.FrameLayout[@resource-id='android:id/content']"
-        #     "/android.widget.FrameLayout/android.view.ViewGroup"
-        #     "/android.view.ViewGroup/android.view.ViewGroup[2]"
-        #     "/android.widget.ScrollView/android.view.ViewGroup"
-        #     "/android.view.ViewGroup/android.widget.ScrollView"
-        #     "/android.view.ViewGroup/android.view.ViewGroup[2]"
-        # ))
-        # )
-
-        # target.click()
-        # target.send_keys("Test Object")
 
         write_here = wait.until(
             EC.element_to_be_clickable((
