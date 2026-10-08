@@ -1,4 +1,3 @@
-
 import time
 import random
 from utils import driver
@@ -12,8 +11,8 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 
-class TestUserAutomation:
-    """Test suite for user automation"""
+class TestFilterAutomation:
+    """Test suite for filter automation"""
 
     driver = None
     wait = None

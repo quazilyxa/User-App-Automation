@@ -241,7 +241,7 @@ class TestUserProfile:
             """Navigate to profile/menu screen"""
             print("Navigating to profile screen...")
 
-            user_icon = WebDriverWait(self.driver, 10).until(
+            user_icon = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((
                 AppiumBy.XPATH,
                 '//android.view.ViewGroup[@resource-id="home-header-user-svg"]'

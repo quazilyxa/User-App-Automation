@@ -148,9 +148,10 @@ def signup_user(driver, wait, name, email, password):
                 "//android.widget.EditText[contains(@text,'Enter Password')]"
             ))
         )
+        password_to_enter = password if password else "Dhaka@01"
         password_field.click()
         password_field.clear()
-        password_field.send_keys("Dhaka@01")
+        password_field.send_keys(password_to_enter)
         print("✓ Password entered")
         time.sleep(1)
         try:
@@ -167,7 +168,7 @@ def signup_user(driver, wait, name, email, password):
         )
         confirm_password_field.click()
         confirm_password_field.clear()
-        confirm_password_field.send_keys("Dhaka@01")
+        confirm_password_field.send_keys(password_to_enter)
         print("✓ Confirm password entered")
         time.sleep(1)
         try:
@@ -531,7 +532,7 @@ def test_signup_flow():
             wait,
             name="Test User",
             email="testuser123@example.com",
-            password="Test@1234"
+            password="Dhaka@01"
         )
 
         search_and_add_to_cart(driver, wait)
