@@ -58,6 +58,8 @@ class TestFilterAutomation:
                     (AppiumBy.ACCESSIBILITY_ID, "Filter")
                 )
             )
+            assert filter_btn.is_displayed(), "ASSERTION FAILED: 'Filter' button is not displayed on home screen."
+            print("[ASSERTION PASSED] 'Filter' button verified and visible.")
 
             filter_btn.click()
             print("✓ Filter button clicked")
@@ -75,6 +77,8 @@ class TestFilterAutomation:
                     )
                 )
             )
+            assert offers_btn.is_displayed(), "ASSERTION FAILED: 'Offers' filter section is not displayed."
+            print("[ASSERTION PASSED] 'Offers' filter section verified.")
 
             offers_btn.click()
             print("✓ Clicked Offers")
