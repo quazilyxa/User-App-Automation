@@ -817,11 +817,20 @@ def test_complete_user_app_flow():
         # Select location
         select_location(driver, wait)
         print("✓ Location selected")
+        assert driver.current_package == "com.lyxa.user", (
+            "ASSERTION FAILED: App is not running or crashed after location selection."
+        )
+        print("[ASSERTION PASSED] App active after location selection.")
         time.sleep(2)
         
         # Run user automation flow
         userAutomation(driver, wait)
         print("✓ User automation completed successfully")
+
+        assert driver.current_package == "com.lyxa.user", (
+            "ASSERTION FAILED: App session disconnected during user flow."
+        )
+        print("[ASSERTION PASSED] Complete user automation flow verified with assertions.")
         
         # Take success screenshot
         driver.save_screenshot("user_app_test_success.png")

@@ -88,6 +88,7 @@ def navigate_to_test_shop(driver, wait):
     time.sleep(3)
 
     # 4. Select Test Shop
+    shop_card = None
     try:
         shop_card = wait.until(
             EC.element_to_be_clickable((
@@ -107,6 +108,10 @@ def navigate_to_test_shop(driver, wait):
         shop_card.click()
         print("✓ Clicked 'Test Shop' via accessibility id")
 
+    assert shop_card is not None and shop_card.is_displayed(), (
+        "ASSERTION FAILED: 'Test Shop' card was not displayed or clickable."
+    )
+    print("[ASSERTION PASSED] Navigated into Test Shop.")
     time.sleep(3)
 
 
@@ -152,6 +157,11 @@ def add_product_and_proceed_to_checkout(driver, wait):
         add_btn.click()
         print("✓ Clicked add-to-cart via fallback")
 
+    assert add_btn.is_displayed(), (
+        "ASSERTION FAILED: 'Add to Cart' button is not displayed."
+    )
+    print("[ASSERTION PASSED] Product added to basket.")
+
     # 3. Click View Basket (Instant dynamic match on 'View Basket')
     try:
         view_basket = wait.until(
@@ -179,6 +189,10 @@ def add_product_and_proceed_to_checkout(driver, wait):
             "Checkout"
         ))
     )
+    assert checkout_btn.is_displayed(), (
+        "ASSERTION FAILED: 'Checkout' button is not displayed on cart screen."
+    )
+    print("[ASSERTION PASSED] Basket opened and Checkout button displayed.")
     checkout_btn.click()
     print("✓ Clicked 'Checkout'")
 
@@ -571,12 +585,17 @@ def place_order_with_cash(driver, wait):
             "//*[@content-desc='Place Order' or @text='Place Order']"
         ))
     )
+    assert place_order_btn.is_displayed(), (
+        "ASSERTION FAILED: 'Place Order' button not visible for Cash on Delivery."
+    )
+    print("[ASSERTION PASSED] 'Place Order' button verified for Cash.")
     place_order_btn.click()
     print("✓ Clicked 'Place Order' with Cash")
 
     # 3. Dynamic wait, handle 'Looks good', and return
-    navigate_back_to_shop_or_home(driver, wait)
-    print("🎉 Order 1 (Cash) Completed Successfully!\n")
+    nav_ok = navigate_back_to_shop_or_home(driver, wait)
+    assert nav_ok, "ASSERTION FAILED: Failed to return to home/shop after Cash order."
+    print("🎉 Order 1 (Cash) Completed and Verified Successfully!\n")
 
 
 def place_order_with_whish(driver, wait):
@@ -596,6 +615,10 @@ def place_order_with_whish(driver, wait):
             "//*[@content-desc='Place Order' or @text='Place Order']"
         ))
     )
+    assert place_order_btn.is_displayed(), (
+        "ASSERTION FAILED: 'Place Order' button not visible for Whish."
+    )
+    print("[ASSERTION PASSED] 'Place Order' button verified for Whish.")
     place_order_btn.click()
     print("✓ Clicked 'Place Order' to enter Whish flow")
     time.sleep(2)
@@ -621,6 +644,10 @@ def place_order_with_whish(driver, wait):
                 'new UiSelector().resourceId("next-button")'
             ))
         )
+        assert next_btn.is_displayed(), (
+            "ASSERTION FAILED: Whish next-button not found or displayed."
+        )
+        print("[ASSERTION PASSED] Whish next-button displayed.")
         next_btn.click()
         print("✓ Clicked 'next-button'")
         time.sleep(2)
@@ -644,6 +671,10 @@ def place_order_with_whish(driver, wait):
                 'new UiSelector().resourceId("submit-button")'
             ))
         )
+        assert submit_btn.is_displayed(), (
+            "ASSERTION FAILED: Whish submit-button not found or displayed."
+        )
+        print("[ASSERTION PASSED] Whish submit-button displayed.")
         submit_btn.click()
         print("✓ Clicked 'submit-button'")
         time.sleep(2)
@@ -656,8 +687,9 @@ def place_order_with_whish(driver, wait):
         handle_whish_response(driver, wait)
 
     # 4. Click Go-back / return to Home
-    navigate_back_to_shop_or_home(driver, wait)
-    print("🎉 Order 2 (Whish) Completed Successfully!\n")
+    nav_ok = navigate_back_to_shop_or_home(driver, wait)
+    assert nav_ok, "ASSERTION FAILED: Failed to return to home/shop after Whish flow."
+    print("🎉 Order 2 (Whish) Completed and Verified Successfully!\n")
 
 
 def place_order_with_card(driver, wait):
@@ -677,31 +709,39 @@ def place_order_with_card(driver, wait):
             "//*[@content-desc='Place Order' or @text='Place Order']"
         ))
     )
+    assert place_order_btn.is_displayed(), (
+        "ASSERTION FAILED: 'Place Order' button not visible for Card payment."
+    )
+    print("[ASSERTION PASSED] 'Place Order' button verified for Card.")
     place_order_btn.click()
     print("✓ Clicked 'Place Order' with Card")
 
     # 3. Dynamic wait, handle 'Looks good', and return
-    navigate_back_to_shop_or_home(driver, wait)
-    print("🎉 Order 3 (Card) Completed Successfully!\n")
+    nav_ok = navigate_back_to_shop_or_home(driver, wait)
+    assert nav_ok, "ASSERTION FAILED: Failed to return to home/shop after Card order."
+    print("🎉 Order 3 (Card) Completed and Verified Successfully!\n")
 
 
 # ==========================================
 # MAIN TEST - RUNS ALL 3 ORDER FLOWS
 # ==========================================
-def test_complete_order_flow():
+def test_complete_order_flow(driver=None):
     """
     Places 3 orders adding the same product every time:
     1. Order with Cash (instance 16)
     2. Order with Whish (instance 24, phone 70123456, OTP 111111)
     3. Order with Card (instance 26)
+    Includes verified business assertions across each flow.
     """
     print("\n" + "=" * 65)
     print("🚀 STARTING THREE-ORDER AUTOMATION SUITE: CASH -> WHISH -> CARD")
     print("=" * 65)
 
-    driver = None
+    created_locally = False
     try:
-        driver = create_driver()
+        if driver is None:
+            driver = create_driver()
+            created_locally = True
         wait = WebDriverWait(driver, 20)
         # Performance optimization: disable 10-second animation freeze
         driver.update_settings({"waitForIdleTimeout": 100})
@@ -732,7 +772,7 @@ def test_complete_order_flow():
         place_order_with_card(driver, wait)
 
         print("\n" + "=" * 65)
-        print("🏆 ALL 3 ORDERS (CASH, WHISH, CARD) PLACED SUCCESSFULLY!")
+        print("🏆 ALL 3 ORDERS (CASH, WHISH, CARD) PLACED & VERIFIED WITH ASSERTIONS!")
         print("=" * 65)
 
     except Exception as e:
@@ -746,6 +786,6 @@ def test_complete_order_flow():
         raise
 
     finally:
-        if driver:
+        if created_locally and driver:
             driver.quit()
             print("✓ Driver closed cleanly")

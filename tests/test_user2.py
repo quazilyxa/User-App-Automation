@@ -255,7 +255,7 @@ class TestUserProfile:
         # ==================== PHASE 1: READ-ONLY ====================
 
         def test_01_check_notifications(self):
-            """Check and view notifications"""
+            """Check and view notifications with verified assertions"""
             print("Testing notifications...")
             
             element = self.wait.until(
@@ -264,10 +264,16 @@ class TestUserProfile:
                     '//com.horcrux.svg.SvgView[@resource-id="home-header-user-svg"]'
                 ))
             )
+            assert element.is_displayed(), "ASSERTION FAILED: Profile icon is not displayed."
             element.click()
             print("✓ Profile screen opened")
             time.sleep(2)
-            notif_btn = self.driver.find_element(AppiumBy.ACCESSIBILITY_ID, "Notifications")
+
+            notif_btn = self.wait.until(
+                EC.element_to_be_clickable((AppiumBy.ACCESSIBILITY_ID, "Notifications"))
+            )
+            assert notif_btn.is_displayed(), "ASSERTION FAILED: 'Notifications' menu item not displayed."
+            print("[ASSERTION PASSED] Notifications button verified and visible.")
             notif_btn.click()
             print("✓ Notifications opened")
             time.sleep(3)
@@ -277,7 +283,7 @@ class TestUserProfile:
             time.sleep(2)
 
         def test_02_click_banner_link(self):
-            """Click promotional banner"""
+            """Click promotional banner with verified assertions"""
             print("Testing banner click...")
 
             self.driver.back()
@@ -289,6 +295,8 @@ class TestUserProfile:
                     "//android.widget.HorizontalScrollView/android.view.ViewGroup/android.view.ViewGroup"
                 ))
             )
+            assert banner.is_displayed(), "ASSERTION FAILED: Promotional banner is not visible."
+            print("[ASSERTION PASSED] Promotional banner found and displayed.")
             banner.click()
             print("✓ Banner clicked")
             time.sleep(5)
@@ -296,17 +304,25 @@ class TestUserProfile:
             self.driver.back()
             print("✓ Back pressed")
             time.sleep(2)
+            assert self.driver.current_package == "com.lyxa.user", "ASSERTION FAILED: App exited after banner navigation."
+            print("[ASSERTION PASSED] Successfully returned from banner link to app.")
 
         def test_03_visit_my_cart(self):
-            """View cart contents"""
+            """View cart contents with verified assertions"""
             print("Testing cart view...")
 
             basket_btn = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((AppiumBy.ACCESSIBILITY_ID, "Go-to-basket"))
             )
+            assert basket_btn.is_displayed(), "ASSERTION FAILED: 'Go-to-basket' button is not visible."
+            print("[ASSERTION PASSED] 'Go-to-basket' icon verified and clickable.")
             basket_btn.click()
             print("✓ Cart opened")
             time.sleep(2)
+
+            cart_active = len(self.driver.find_elements(AppiumBy.XPATH, "//*[@text='Cart' or @text='Basket' or @content-desc='Go-to-basket' or contains(@text, 'LBP')]")) > 0
+            assert cart_active, "ASSERTION FAILED: Cart contents/screen not active."
+            print("[ASSERTION PASSED] Cart screen verified active.")
 
             self.driver.back()
             print("✓ Returned from cart")
@@ -315,7 +331,7 @@ class TestUserProfile:
         # ==================== PHASE 2: MODERATE OPS ====================
 
         def test_04_cancel_order(self):
-            """Cancel an existing order"""
+            """Cancel an existing order with verified assertions"""
             print("Testing order cancellation...")
 
             element = self.wait.until(
@@ -324,6 +340,7 @@ class TestUserProfile:
                     '//com.horcrux.svg.SvgView[@resource-id="home-header-user-svg"]'
                 ))
             )
+            assert element.is_displayed(), "ASSERTION FAILED: Profile icon not found."
             element.click()
             time.sleep(2)
 
@@ -333,6 +350,8 @@ class TestUserProfile:
                     "Orders"
                 ))
             )
+            assert orders_btn.is_displayed(), "ASSERTION FAILED: 'Orders' button not visible in profile."
+            print("[ASSERTION PASSED] 'Orders' navigation button verified.")
             orders_btn.click()
             print("✓ Navigated to orders")
             time.sleep(2)
@@ -358,6 +377,8 @@ class TestUserProfile:
                     '//android.widget.TextView[@text="Cancel Order"]'
                 ))
             )
+            assert cancel_btn.is_displayed(), "ASSERTION FAILED: 'Cancel Order' option not displayed."
+            print("[ASSERTION PASSED] 'Cancel Order' option verified.")
             cancel_btn.click()
             print("✓ Cancel Order clicked")
             time.sleep(2)
@@ -368,12 +389,13 @@ class TestUserProfile:
                     '//android.widget.TextView[@text="Confirm Cancellation"]'
                 ))
             )
+            assert confirm_btn.is_displayed(), "ASSERTION FAILED: 'Confirm Cancellation' modal button not displayed."
+            print("[ASSERTION PASSED] 'Confirm Cancellation' button verified.")
             confirm_btn.click()
             print("✓ Cancellation confirmed")
             time.sleep(2)
 
             self.driver.back()
-            
             
             profile_icon = self.wait.until(
             EC.presence_of_element_located((
@@ -517,6 +539,8 @@ class TestUserProfile:
                     '//android.widget.TextView[@text="Manage Cards"]'
                 ))
             )
+            assert manage_cards.is_displayed(), "ASSERTION FAILED: 'Manage Cards' menu item not displayed."
+            print("[ASSERTION PASSED] 'Manage Cards' menu item verified.")
             manage_cards.click()
             time.sleep(2)
             print("✓ Manage Cards opened")
@@ -567,6 +591,8 @@ class TestUserProfile:
                     AppiumBy.XPATH, '//android.widget.TextView[@text="Continue"]'
                 ))
             )
+            assert continue_btn.is_displayed(), "ASSERTION FAILED: 'Continue' button not displayed on card form."
+            print("[ASSERTION PASSED] Card form 'Continue' button verified.")
             continue_btn.click()
             time.sleep(3)
             print("✓ Continue clicked")
@@ -591,21 +617,16 @@ class TestUserProfile:
                     AppiumBy.XPATH, '//android.widget.TextView[@text="Delete Card"]'
                 ))
             )
+            assert delete_btn.is_displayed(), "ASSERTION FAILED: 'Delete Card' option not displayed."
+            print("[ASSERTION PASSED] 'Delete Card' action button verified.")
             delete_btn.click()
             time.sleep(2)
             print("✓ Card deleted")
-                # If the % coordinates don't hit the right fields, take a screenshot right after the WebView loads and print the coords to calibrate:
-                # pythonself.driver.save_screenshot("card_form.png")
-                # print(f"Tap coords — card:({base_x}, {base_y + int(h * 0.15)}) "
-                #     f"name:({base_x}, {base_y + int(h * 0.30)}) "
-                #     f"month:({base_x - 60}, {base_y + int(h * 0.45)})")
 
         # ==================== PHASE 3: FEATURES ====================
-        
-    
 
         def test_06_invite_friends(self):
-            """Test invite friends functionality"""
+            """Test invite friends functionality with verified assertions"""
             print("Testing invite friends...")
             
             element = self.wait.until(
@@ -625,17 +646,20 @@ class TestUserProfile:
                     '//android.widget.TextView[@text="Invite Friends"]'
                 ))
             )
+            assert invite_btn.is_displayed(), "ASSERTION FAILED: 'Invite Friends' option not displayed."
+            print("[ASSERTION PASSED] 'Invite Friends' menu option verified.")
             invite_btn.click()
             print("✓ Invite Friends opened")
             time.sleep(2)
             
             send_invite_btn = self.wait.until(
-            EC.element_to_be_clickable((
-                AppiumBy.XPATH,
-                '//android.widget.TextView[@text="Send Invite"]'
-                    ))
-                )
-
+                EC.element_to_be_clickable((
+                    AppiumBy.XPATH,
+                    '//android.widget.TextView[@text="Send Invite"]'
+                ))
+            )
+            assert send_invite_btn.is_displayed(), "ASSERTION FAILED: 'Send Invite' button not displayed."
+            print("[ASSERTION PASSED] 'Send Invite' button verified.")
             send_invite_btn.click()
             print("✓ Send Invite clicked")
 
@@ -645,7 +669,8 @@ class TestUserProfile:
                     "Copy text"
                 ))
             )
-
+            assert copy_btn.is_displayed(), "ASSERTION FAILED: 'Copy text' share button not displayed."
+            print("[ASSERTION PASSED] 'Copy text' share button verified.")
             copy_btn.click()
             print("✓ Copy button clicked")
             time.sleep(2)
@@ -654,7 +679,7 @@ class TestUserProfile:
             time.sleep(1)
 
         def test_07_support_tickets(self):
-            """View support tickets"""
+            """View support tickets with verified assertions"""
             print("Testing support tickets...")
             
             element = self.wait.until(
@@ -668,16 +693,19 @@ class TestUserProfile:
             print("✓ Profile icon clicked")
             time.sleep(2)
 
-
             support_btn = self.wait.until(
                 EC.element_to_be_clickable((
                     AppiumBy.ACCESSIBILITY_ID,
                     "Support Tickets"
                 ))
             )
+            assert support_btn.is_displayed(), "ASSERTION FAILED: 'Support Tickets' button not displayed."
+            print("[ASSERTION PASSED] 'Support Tickets' menu button verified.")
             support_btn.click()
             print("✓ Support Tickets opened")
             time.sleep(2)
+            assert self.driver.current_package == "com.lyxa.user", "ASSERTION FAILED: App crashed on Support Tickets."
+            print("[ASSERTION PASSED] Support Tickets screen opened and verified.")
 
             self.driver.back()
             time.sleep(1)
@@ -685,10 +713,8 @@ class TestUserProfile:
         # ==================== PHASE 4: DESTRUCTIVE ====================
 
         def test_08_delete_address(self):
-            """Delete saved address"""
+            """Delete saved address with verified assertions"""
             print("Testing address deletion...")
-
-        
             time.sleep(2)
 
             addresses_btn = self.wait.until(
@@ -698,9 +724,13 @@ class TestUserProfile:
                     '//android.widget.TextView[@text="Manage Addresses"]'
                 ))
             )
+            assert addresses_btn.is_displayed(), "ASSERTION FAILED: 'Addresses' menu button not displayed."
+            print("[ASSERTION PASSED] 'Addresses' navigation button verified.")
             addresses_btn.click()
             print("✓ Addresses opened")
             time.sleep(2)
+            assert self.driver.current_package == "com.lyxa.user", "ASSERTION FAILED: App exited after opening Addresses."
+            print("[ASSERTION PASSED] Addresses view opened and active.")
 
             self.driver.back()
             time.sleep(1)

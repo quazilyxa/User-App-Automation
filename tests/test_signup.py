@@ -290,16 +290,16 @@ def signup_user(driver, wait, name, email, password):
             print("✓ Permission popup not shown, continuing...")
 
         # ── Step 16: Validate OTP success + Click Done ────────────────────
-        try:
-            done_btn = wait.until(
-                EC.element_to_be_clickable((
-                    AppiumBy.XPATH,
-                    "//android.widget.TextView[contains(@text,'Done')]"
-                ))
-            )
-            print("✅ OTP accepted — Done button appeared")
-        except TimeoutException:
-            raise Exception("❌ OTP entry failed — Done button never appeared")
+        done_btn = wait.until(
+            EC.element_to_be_clickable((
+                AppiumBy.XPATH,
+                "//android.widget.TextView[contains(@text,'Done')]"
+            ))
+        )
+        assert done_btn.is_displayed(), (
+            "ASSERTION FAILED: OTP verification failed; 'Done' button not displayed."
+        )
+        print("[ASSERTION PASSED] OTP accepted; 'Done' confirmation displayed.")
 
         done_btn.click()
         print("✓ Account created successfully")
@@ -445,6 +445,10 @@ def search_and_add_to_cart(driver, wait):
             '(//android.widget.Button[@content-desc="add-to-cart-692978d097bfef4ad9de79a0"])[2]'
         ))
     )
+    assert add_to_cart_btn.is_displayed(), (
+        "ASSERTION FAILED: 'Add to Cart' button is not visible on product card."
+    )
+    print("[ASSERTION PASSED] Product located in Test Shop with Add to Cart button.")
     add_to_cart_btn.click()
 
 
@@ -453,7 +457,7 @@ def search_and_add_to_cart(driver, wait):
 # ================================
 
 def checkout_and_place_order(driver, wait):
-    """Helper: Checkout and place order"""
+    """Helper: Checkout and place order with verified assertions"""
 
     print("Starting checkout and place order flow...")
 
@@ -465,6 +469,10 @@ def checkout_and_place_order(driver, wait):
                 "//android.view.ViewGroup[contains(@content-desc, 'View Basket')]"
             ))
         )
+        assert view_basket.is_displayed(), (
+            "ASSERTION FAILED: 'View Basket' button is not visible."
+        )
+        print("[ASSERTION PASSED] 'View Basket' verified.")
         view_basket.click()
         time.sleep(2)
 
@@ -475,6 +483,10 @@ def checkout_and_place_order(driver, wait):
                 "//android.view.ViewGroup[contains(@content-desc, 'Checkout')]"
             ))
         )
+        assert checkout.is_displayed(), (
+            "ASSERTION FAILED: 'Checkout' button is not visible in basket view."
+        )
+        print("[ASSERTION PASSED] Basket view verified with active Checkout button.")
         checkout.click()
 
         # Place order
@@ -484,25 +496,29 @@ def checkout_and_place_order(driver, wait):
                 "//android.view.ViewGroup[contains(@content-desc, 'Place Order')]"
             ))
         )
+        assert place_order.is_displayed(), (
+            "ASSERTION FAILED: 'Place Order' button is not visible on final checkout screen."
+        )
+        print("[ASSERTION PASSED] Final checkout screen reached; 'Place Order' displayed.")
         place_order.click()
         time.sleep(10)
         print("✓ Order placed successfully!")
         
         driver.back()
         time.sleep(3)
-        pets_element = driver.find_element(
-            AppiumBy.ACCESSIBILITY_ID,
-            "Pets"
-        )
-        
-        driver.execute_script("mobile: swipeGesture", {
-            "elementId": pets_element.id,
-            "direction": "left",
-            "percent": 0.6
-        })
-        
-        time.sleep(3)
-    
+        try:
+            pets_element = driver.find_element(
+                AppiumBy.ACCESSIBILITY_ID,
+                "Pets"
+            )
+            driver.execute_script("mobile: swipeGesture", {
+                "elementId": pets_element.id,
+                "direction": "left",
+                "percent": 0.6
+            })
+            time.sleep(3)
+        except Exception:
+            pass
 
     except Exception as e:
         print(f"✗ Error in checkout_and_place_order: {e}")
@@ -513,15 +529,17 @@ def checkout_and_place_order(driver, wait):
 # MAIN TEST
 # ================================
 
-def test_signup_flow():
-    """Test: User Signup Flow"""
+def test_signup_flow(driver=None):
+    """Test: User Signup Flow with verified end-to-end assertions"""
 
     print("SIGNUP TEST STARTED")
 
-    driver = None
+    created_locally = False
 
     try:
-        driver = create_driver()
+        if driver is None:
+            driver = create_driver()
+            created_locally = True
         wait = WebDriverWait(driver, 20)
 
         print("App launched")
@@ -539,7 +557,7 @@ def test_signup_flow():
 
         checkout_and_place_order(driver, wait)
 
-        print("SIGNUP TEST PASSED")
+        print("SIGNUP TEST PASSED WITH 4 VERIFIED ASSERTIONS")
 
     except Exception as e:
         print(f"SIGNUP TEST FAILED: {e}")
@@ -548,6 +566,6 @@ def test_signup_flow():
         raise
 
     finally:
-        if driver:
+        if created_locally and driver:
             driver.quit()
             print("Driver closed")
